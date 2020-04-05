@@ -1,0 +1,185 @@
+\documentclass{book}
+\usepackage{color}
+\usepackage{amsthm}
+\usepackage{listings}
+\lstset{
+    basicstyle=\small \ttfamily,
+    frame=lines,
+    escapechar=`
+}
+\lstdefinelanguage{Coq}
+    {morekeywords={Theorem,Proof,Qed,Definition,
+        Fixpoint,Example,Lemma,match,end,if,else},
+     sensitive=true,
+     morecomment=[n]{(*}{*)},
+     %commentstyle=\color{green}\scriptsize,
+     commentstyle=\footnotesize,
+     %commentstyle=\tiny,
+     keywordstyle=\color{black}\bfseries,
+     literate={forall}{{$\forall$}}1 {exists}{{$\exists$}}1 {~}{{$\neg$}}1
+     {->}{{$\rightarrow$}}1 {/\\}{{$\wedge$}}1 {<->}{{$\iff$}}1
+     {\\/}{{$\vee$}}1 {Qed}{{$\qedsymbol$}}1,
+    }
+\usepackage{ctex}
+\usepackage{hyperref}
+\begin{document}
+\tableofcontents
+\chapter{定理证明}
+\section{tactics}
+目前学过并且用了的tactics有：
+\begin{itemize}
+    \item 归纳法
+    \item 运算化简(\verb|simpl|)
+    \item 运用已知的结论、中间结论、前提，进行改写(\verb|rewrite|).
+        这一步感觉是最难的，有几点需要弄清楚：
+        \begin{itemize}
+            \item 有那些结论可用？
+            \item 改写哪一部分?
+            \item 改写的时候，要避免free variable capture的问题
+        \end{itemize}
+    \item 分类讨论(\verb|destruct|)
+\end{itemize}
+
+还有一些方法是没有用到的，比如反证法, 比如逻辑连接词的使用。
+比如怎么证明 $ 3 \ne 4 $\ ?
+\begin{lstlisting}[language=Coq]
+Theorem three_noteq_four: (3 =? 4) = false.
+Proof.
+    simpl. reflexivity.
+Qed.
+\end{lstlisting}
+%`$\qedsymbol$`
+
+\section{More tactics}
+新学习了一些tactics，包括
+\begin{itemize}
+    \item discriminate
+    \item injection
+    \item apply \qquad 对有$\forall$限定的变量，进行替换。有\verb|with|变体
+    \item \lstinline{generalize dependent}
+\end{itemize}
+然后，很多tactic都有\verb|in|变体.
+
+有一些tactic只是用于简化证明，并没有引入什么新内容的，比如 \verb|symmetry|.
+
+\subsection{generalize dependent}
+需要先\verb|intros| 所有量词，然后再按照希望的顺序，重新泛化部分量词。
+通过一个例子来说明。
+\begin{lstlisting}[language=Coq]
+
+Theorem nth_error_after_last: forall (n : nat) (X : Type) (l : list X),
+    length l = n ->
+    nth_error l n = None.
+Proof.
+    intros n X l.
+    generalize dependent n.
+    (* Why? We need to induction on l, but doing so,
+       will first intros n automatically, and so n in the premise is not so
+       general *)
+    induction l as [| h t].
+    - (* For empty list *)
+      simpl. reflexivity.
+    - (* For non empty list, l = x :: t *)
+      simpl.
+      induction n as [| n'].
+      + (* n cann't be 0 *)
+        simpl. intros eq1. discriminate eq1.
+      + (* n = S n' *)
+        simpl. intros eq2.
+        injection eq2. intros eq3. apply IHt. apply eq3.
+Qed.
+\end{lstlisting}
+
+再来一个例子
+\begin{lstlisting}[language=Coq]%
+
+Theorem implies_implies_and: forall P Q R : Prop,
+    ((P -> Q) -> R) -> (P -> (Q /\ R).
+\end{lstlisting}
+
+这个结论其实是错的。考虑，如果\verb|P=True,Q=False|，那么
+\lstinline[language=Coq]|(P -> Q) = False|，左边\lstinline[language=Coq]|False->R|恒为真。然而
+\lstinline[language=Coq]|Q = False -> (Q /\ R) = False|,所以右边为假。因此结论不成立。
+
+\chapter{关于学习}
+\section{影响学习效果的因素}
+\begin{itemize}
+    \item 天赋
+    \item 经验 \newline
+        这里的经验是有效经验。如果一个经验重复了10000次，那么也只是一个有效经验。
+        所以重复的、无意义的重复劳动，要尽量避免。哪怕是失败的经验，只要不是冗余的，也是宝贵的。
+        另外，多读一些经典的书籍，也是快速积累有效经验的捷径。
+        要经常自我反省，总结。
+    \item 反馈 \newline
+        要接受有效的反馈，需要
+        \begin{itemize}
+            \item 保持真诚开放的心态。
+                不要因为情绪的因素，而选择性忽视事实，忽视反馈。
+            \item 敏锐的观察，以及对效果的评估。能否将反馈量化/可视化？
+            \item 考察重要的因子。
+                有些影响反馈的因子，自己是很难察觉的，有点类似思维的盲点。这时候最好是跟别人
+                交流，别人能帮你拓宽视野，指出一些关键的影响因子。
+        \end{itemize}
+\end{itemize}
+人的精力是有限的，要么是选择做很多事，但是每件事都做的半吊子；要么选择做重要的事，宁可少做一点，
+也要争取做好每件事。我选择后一种态度。
+
+\section{能力}
+\begin{itemize}
+    \item 记忆
+    \item 观察力 \newline
+        有观察力，意味着能发现不同的行动会导致的微妙的变化，从而在需要精细操作的时候，能够领悟到需要做到什么地步。
+        比如画家需要有出色的色觉，音乐家需要有出色的音感。
+    \item 动手能力 \newline
+        通过观察，知道需要怎么做，这还不足够，还要能确保落实做到。
+    \item 精力 \newline
+        一个人如果经常容易犯困，或者学一会儿就厌倦疲劳，那么就不能长时间投入地去学习。这对于一些复杂的理论，就难以掌握。
+    \item 触类旁通 \newline
+        举一反三，是不是一种能力？存疑。
+\end{itemize}
+
+通过比喻来说明的话，比如知道某分量的菜，需要放多少盐，这是观察力。
+
+知道要放多少盐，但是在操作的时候，有没有手抖，对火候的控制能否做到随心所欲，这就是动手能力。
+
+\section{如何提高能力}
+天赋固然重要，但是天赋难以变改，除非以后科技发达，人可以比较自由的对自我进行元编程改造，那时候再来针对“天赋”
+进行完善。
+
+排除天赋的因素，这里考察人力所能改变的能力，进行探讨。
+熟能生巧，多练习也可以改进各种能力。
+以下罗列我认为可能有用的方法。
+\begin{itemize}
+    \item 记忆 \newline
+        适当背诵。临睡/早起的时候，进行冥想回忆。
+    \item 观察力
+    \item 动手能力 \newline
+        多练习，针对反馈进行调整。
+    \item 精力 \newline
+        注意锻炼身体。
+        怎么进行有效的休息？睡觉前不要看太刺激的内容，保持平静的心境。可以考虑喝点牛奶
+        \begin{itemize}
+            \item 睡觉前不要看刺激兴奋的内容，保持平静的心境
+            \item 考虑喝点牛奶
+            \item 居住环境保持舒适干净
+            \item \dots
+        \end{itemize}
+    \item 触类旁通 \newline
+        需要经常的将新知识与旧经验建立联系。时不时对知识进行梳理，画下脑图，做点笔记。
+\end{itemize}
+
+\section{性格}
+性格、爱好对学习也有影响。
+如果某样技艺，需要花长年累月的练习，才能练好，那么就需要练习者对此有强烈的兴趣和爱好，
+否则是很难坚持得下来的。
+这里对兴趣爱好的讨论太宽泛了，
+如果具体化，比如，喜欢小说电影，喜欢游山玩水，喜欢锻炼，喜欢天马行空的想象，喜欢创作，
+这些喜好对人的影响是怎样的呢，对学习的影响又是怎样的呢。
+另, 爱好太宽泛，就不宜深入。
+另外还要能抵挡分心的诱惑。比如，一个人能不能坐得住，能不能耐住寂寞。一个人要能克制。
+
+野心，激情，傲慢，这些非理性的因素，对学习的影响是如何的呢？
+
+\section{对性格的改造}
+
+\end{document}
