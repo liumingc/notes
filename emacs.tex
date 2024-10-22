@@ -1,0 +1,49 @@
+\chapter{$\varepsilon$macs}
+
+\section{Abbrev mode}
+
+local mode
+
+启动abbrev mode: \verb|M-x abbrev-mode|
+
+\begin{verbatim}
+  M-x define-mode-abbrev RET abbrev RET exp
+  M-x define-global-abbrev RET abbrev RET exp
+\end{verbatim} 
+global mode
+
+\section{speed bar}
+
+打开speed bar: \verb|M-x speedbar|
+
+\section{bookmark}
+
+For registers,
+Save positions in register:
+\begin{verbatim}
+  C-x r SPC <r>
+  Record the position and point in register <r> (point-to-register).
+  C-x r j <r>
+  Jump to position and buffer saved in register <r>(jump-to-register).
+\end{verbatim}
+
+Save text in registers:
+\begin{verbatim}
+  C-x r s <r>
+  copy-to-register
+  C-x r i <r>
+  insert-register
+\end{verbatim}
+
+For bookmarks:
+
+\begin{verbatim}
+  C-x r m RET
+  Set bookmark.
+  C-x r b <bookmark> RET
+  Jump to bookmark(bookmark-jump).
+  C-x r l
+  List all bookmarks(list-bookmarks).
+  M-x bookmark-save
+  Save bookmark values.
+\end{verbatim} 

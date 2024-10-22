@@ -1,0 +1,67 @@
+\chapter{\TeX}
+
+2024-10-21, 大致翻阅了一遍 The \TeX\ Book。
+
+这里，最基本的概念有：
+\begin{itemize}
+\item{box}
+\item{glue}
+\item{mode} 有vertical mode, horiz mode, math mode
+\item{macro}
+\end{itemize}
+
+\section{Box}
+
+\section{Glue}
+
+\section{Macro}
+
+simple macro:
+\vskip3pt\hrule
+%\begin{lstlisting}[language=tex]
+\begin{verbatim}
+\def\foo#1{#1, #1}
+\def\range#1->#2{#1 $\rightarrow$ #2}
+\end{verbatim}
+\hrule\vskip3pt
+%\end{lstlisting}
+
+\def\range#1->#2{#1$\rightarrow$#2}
+\verb|\range{$n_1$}->{$n_\infty$}|, 效果为：
+\range{$n_1$}->{$n_\infty$}
+
+\section{文档\&帮助}
+
+%\begin{lstlisting}[language=bash]
+\begin{verbatim}
+  $ texdoc tex
+  $ texdoc texbytopic
+  $ texdoc source2e
+  $ texdoc source3
+  $ texdoc classes
+  $ tlmgr search beamer # 查找包
+  $ sudo tlmgr install <pkg-name>
+\end{verbatim}
+%\end{lstlisting} 
+
+\section{实现}
+
+tex-fpc是在knuth的版本上进行修改，使之可以通过\verb|free pascal|进行编译。
+下载tex-fpc，从knuth的dist复制 tex.web, mf.web到 tex-fpc目录下，
+
+\begin{lstlisting}[language=bash]
+  $ vi tex.ch # search initex part and shift left
+  $ tangle tex.web tex.ch # will generate program file: tex.p
+  $ fpc -FaUnix,sysutils,baseunix tex.p
+\end{lstlisting}
+
+编译mf与tex类似。然后得到tex和mf执行文件。但是:
+
+\begin{verbatim}
+$ ./tex
+This is TeX-FPC, 4th ed. (no format preloaded)
+**\input tex
+I can't find TeXformats/plain.fmt!
+\end{verbatim}
+
+生成\verb|plain.fmt|要更麻烦一点，后面再细看。

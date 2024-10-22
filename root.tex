@@ -22,6 +22,7 @@
     }
 \usepackage{ctex}
 \usepackage{hyperref}
+
 \begin{document}
 \tableofcontents
 \chapter{定理证明}
@@ -67,9 +68,9 @@ Qed.
 通过一个例子来说明。
 \begin{lstlisting}[language=Coq]
 
-Theorem nth_error_after_last: forall (n : nat) (X : Type) (l : list X),
+Theorem nth\_error\_after\_last: forall (n : nat) (X : Type) (l : list X),
     length l = n ->
-    nth_error l n = None.
+    nth\_error l n = None.
 Proof.
     intros n X l.
     generalize dependent n.
@@ -181,5 +182,11 @@ Theorem implies_implies_and: forall P Q R : Prop,
 野心，激情，傲慢，这些非理性的因素，对学习的影响是如何的呢？
 
 \section{对性格的改造}
+
+\include{tex}
+
+\include{lisp}
+
+\include{emacs}
 
 \end{document}
